@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF Summarizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📄 PDF Summarizer</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+      <label>Upload PDF:</label>
+      <input type="file" name="pdf_file" accept=".pdf" required>
+
+      <label>Upload Keywords File (.txt):</label>
+      <input type="file" name="keywords_file" accept=".txt" required>
+
+      <button type="submit">Generate Summary</button>
+    </form>
+
+    <div id="summary-output"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("upload-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const response = await fetch("http://localhost:5000/summarize", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      const summaryDiv = document.getElementById("summary-output");
+
+      if (data.summary && data.summary.length) {
+        summaryDiv.innerHTML = `<h2>✅ Summary:</h2><ul>` + 
+          data.summary.map((line, i) => `<li>${i + 1}. ${line}</li>`).join('') + 
+          `</ul>`;
+      } else {
+        summaryDiv.innerHTML = `<p>⚠️ No relevant summary found.</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
